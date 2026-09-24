@@ -1,0 +1,15 @@
+{
+  "accuracy": 84.375,
+  "macro_f1": 0.8191667889873446,
+  "total_test_samples": 160,
+  "classes": [
+    "fresh_apple",
+    "fresh_banana",
+    "fresh_orange",
+    "fresh_tomato",
+    "rotten_apple",
+    "rotten_banana",
+    "rotten_orange",
+    "rotten_tomato"
+  ]
+}

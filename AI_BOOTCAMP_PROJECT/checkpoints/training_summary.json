@@ -1,0 +1,18 @@
+{
+  "best_epoch": 5,
+  "best_val_accuracy": 73.125,
+  "f1_score_macro": 0.6765906801317019,
+  "total_epochs_trained": 6,
+  "model_type": "custom_cnn",
+  "num_classes": 8,
+  "classes": [
+    "fresh_apple",
+    "fresh_banana",
+    "fresh_orange",
+    "fresh_tomato",
+    "rotten_apple",
+    "rotten_banana",
+    "rotten_orange",
+    "rotten_tomato"
+  ]
+}

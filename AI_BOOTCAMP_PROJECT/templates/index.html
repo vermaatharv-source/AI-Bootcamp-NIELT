@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fruit & Vegetable Quality Grading CNN System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <div class="brand">
+            <span class="logo-icon">🍎🔬</span>
+            <div class="brand-text">
+                <h1>AgriGrade AI</h1>
+                <p>Deep CNN Fruit & Vegetable Quality Grading System</p>
+            </div>
+        </div>
+        <div class="nav-status">
+            <div class="status-chip" id="modelStatus">
+                <span class="status-dot"></span>
+                <span id="modelStatusText">Loading Model...</span>
+            </div>
+            <div class="badge" id="modelArchBadge">CNN (Custom Deep Architecture)</div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Input & Controls Section -->
+        <section class="card input-section">
+            <div class="card-header">
+                <h2>1. Select or Upload Image</h2>
+                <p>Upload a fruit or vegetable photograph, or select from pre-calibrated test specimens.</p>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="upload-tab">Upload Image</button>
+                <button class="tab-btn" data-tab="samples-tab">Preset Specimens</button>
+                <button class="tab-btn" data-tab="webcam-tab">Live Camera</button>
+            </div>
+
+            <!-- Upload Tab -->
+            <div class="tab-content active" id="upload-tab">
+                <div class="dropzone" id="dropzone">
+                    <input type="file" id="fileInput" accept="image/*" class="file-input">
+                    <div class="dropzone-content">
+                        <div class="upload-icon">📤</div>
+                        <p class="dropzone-title">Drag & drop your fruit/veg photo here</p>
+                        <p class="dropzone-subtitle">or <span class="browse-link">browse from computer</span></p>
+                        <span class="file-types">Supports PNG, JPG, JPEG, WEBP</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Samples Tab -->
+            <div class="tab-content" id="samples-tab">
+                <p class="section-hint">Click any sample to evaluate immediately:</p>
+                <div class="sample-grid" id="sampleGrid">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Webcam Tab -->
+            <div class="tab-content" id="webcam-tab">
+                <div class="webcam-container">
+                    <video id="webcamVideo" autoplay playsinline></video>
+                    <canvas id="webcamCanvas" style="display: none;"></canvas>
+                    <div class="webcam-controls">
+                        <button class="btn btn-secondary" id="startCameraBtn">Start Camera</button>
+                        <button class="btn btn-primary" id="captureBtn" disabled>Capture Snapshot</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Image Preview Box -->
+            <div class="preview-box" id="previewBox" style="display: none;">
+                <h3>Selected Input Image</h3>
+                <div class="preview-wrapper">
+                    <img id="imagePreview" alt="Input Preview">
+                </div>
+                <button class="btn btn-primary btn-lg" id="analyzeBtn">
+                    <span class="btn-text">⚡ Analyze Quality Grade</span>
+                    <span class="spinner" id="analyzeSpinner" style="display: none;"></span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Results & Analysis Section -->
+        <section class="card results-section" id="resultsSection" style="display: none;">
+            <div class="card-header">
+                <h2>2. Quality Inspection & Diagnostic Report</h2>
+                <span class="timestamp" id="reportTime"></span>
+            </div>
+
+            <!-- Primary Grade Summary Banner -->
+            <div class="grade-banner" id="gradeBanner">
+                <div class="grade-badge" id="gradeBadge">Grade A</div>
+                <div class="grade-info">
+                    <h3 id="gradeCommodity">Apple</h3>
+                    <p class="grade-desc" id="gradeDesc">Premium Export Quality</p>
+                    <p class="grade-condition" id="gradeCondition">Surface: Fresh & Healthy</p>
+                </div>
+                <div class="freshness-gauge">
+                    <div class="gauge-value" id="freshnessValue">96.4%</div>
+                    <div class="gauge-label">Freshness Score</div>
+                </div>
+            </div>
+
+            <!-- Metric Cards Grid -->
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <span class="metric-title">Model Confidence</span>
+                    <span class="metric-number" id="metricConfidence">99.1%</span>
+                    <div class="progress-bar"><div class="progress-fill" id="confProgress"></div></div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Defect Area Coverage</span>
+                    <span class="metric-number" id="metricDefect">2.4%</span>
+                    <div class="progress-bar"><div class="progress-fill defect" id="defectProgress"></div></div>
+                </div>
+                <div class="metric-card">
+                    <span class="metric-title">Est. Remaining Shelf-Life</span>
+                    <span class="metric-number text-highlight" id="metricShelfLife">14 - 21 Days</span>
+                    <span class="metric-sub">Cold Storage Recommended</span>
+                </div>
+            </div>
+
+            <!-- Action Recommendation Box -->
+            <div class="action-box" id="actionBox">
+                <h4>📋 Quality Assurance Recommendation</h4>
+                <p id="actionRecommendation">Approved for retail distribution.</p>
+            </div>
+
+            <!-- Explainable AI (Grad-CAM) Visualizer -->
+            <div class="xai-container">
+                <div class="xai-header">
+                    <h3>🔍 Explainable AI: Grad-CAM Defect Attention Map</h3>
+                    <div class="view-toggles">
+                        <button class="toggle-btn active" data-view="overlay">Overlay</button>
+                        <button class="toggle-btn" data-view="original">Original</button>
+                        <button class="toggle-btn" data-view="heatmap">Heatmap Only</button>
+                    </div>
+                </div>
+                <p class="xai-explanation">
+                    Grad-CAM isolates the specific receptive fields in the final convolutional layer that influenced the network's grading. Warm colors (red/orange) pinpoint detected defects, bruising, or distinctive freshness features.
+                </p>
+                <div class="xai-display">
+                    <div class="xai-frame">
+                        <img id="xaiImage" alt="Grad-CAM Visualization">
+                        <span class="xai-label" id="xaiLabel">Grad-CAM Overlay</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Probability Distribution Table -->
+            <div class="distribution-container">
+                <h3>Class Probability Distribution</h3>
+                <div class="prob-list" id="probList">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>AgriGrade AI &bull; Deep CNN Machine Learning Project &bull; Built with PyTorch, OpenCV & FastAPI</p>
+    </footer>
+
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
